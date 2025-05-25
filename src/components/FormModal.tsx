@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const TeacherForm = dynamic(() => import("./forms/TeacherForm"), {
   loading: () => <h1>Loading...</h1>,
@@ -37,7 +37,7 @@ type FormModalProps = {
   id?: number;
 };
 
-const FormModal = ({ table, type, data, id }: FormModalProps) => {
+const FormModal = ({ table, type, data: initialData, id }: FormModalProps) => {
   const size = type === "create" ? "w-8 h-8" : "w-7 h-7";
   const bgColor =
     type === "create"
@@ -48,6 +48,29 @@ const FormModal = ({ table, type, data, id }: FormModalProps) => {
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // State for fetched data if update & no data provided
+  const [data, setData] = useState(initialData);
+
+  useEffect(() => {
+    if (type === "update" && table === "student" && id && !initialData) {
+      setLoading(true);
+      fetch(`/api/students/${id}`)
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch student data");
+          return res.json();
+        })
+        .then((json) => {
+          setData(json);
+        })
+        .catch((err) => {
+          console.error("Error loading student data:", err);
+          alert("Failed to load student data");
+          setOpen(false);
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [type, table, id, initialData]);
 
   const handleDelete = async () => {
     if (!id) return;
@@ -95,7 +118,13 @@ const FormModal = ({ table, type, data, id }: FormModalProps) => {
       );
     }
 
-    if (type === "create" || type === "update") {
+    if (type === "create") {
+      return forms[table]?.(type, data) ?? <>Form not found!</>;
+    }
+
+    if (type === "update") {
+      if (loading) return <p>Loading student data...</p>;
+      if (!data) return <p>Failed to load data.</p>;
       return forms[table]?.(type, data) ?? <>Form not found!</>;
     }
 
@@ -115,7 +144,7 @@ const FormModal = ({ table, type, data, id }: FormModalProps) => {
 
       {open && (
         <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-          <div className="bg-white p-6 rounded-md relative w-full max-w-3xl">
+          <div className="bg-white p-6 rounded-md relative w-full max-w-3xl max-h-[90vh] overflow-auto">
             <Form />
             <button
               aria-label="Close modal"

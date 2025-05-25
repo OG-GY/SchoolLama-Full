@@ -45,7 +45,6 @@ export async function DELETE(
     return NextResponse.json({ error: 'Failed to delete student' }, { status: 500 });
   }
 }
-
 export async function PATCH(
   request: Request,
   { params }: { params: { id: string | number } }
@@ -53,7 +52,7 @@ export async function PATCH(
   const studentId = parseInt(params.id as string, 10);
 
   if (isNaN(studentId)) {
-    return NextResponse.json({ error: 'Invalid student ID' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid student ID" }, { status: 400 });
   }
 
   const {
@@ -72,16 +71,14 @@ export async function PATCH(
   } = await request.json();
 
   try {
-    // Ensure student exists
     const student = await prisma.student.findUnique({
       where: { id: studentId },
     });
 
     if (!student) {
-      return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+      return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
 
-    // Update student (excluding img)
     const updated = await prisma.student.update({
       where: { id: studentId },
       data: {
@@ -102,8 +99,8 @@ export async function PATCH(
 
     return NextResponse.json(updated, { status: 200 });
   } catch (err) {
-    console.error('Update failed:', err);
-    return NextResponse.json({ error: 'Update failed' }, { status: 500 });
+    console.error("Update failed:", err);
+    return NextResponse.json({ error: "Update failed" }, { status: 500 });
   }
 }
 
