@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import FormModal from "@/components/FormModal";
 import Pagination from "@/components/Pagination";
@@ -33,6 +33,7 @@ const columns = [
 
 const StudentListPage = () => {
   const [students, setStudents] = useState<Student[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     fetch("/api/students")
@@ -41,7 +42,6 @@ const StudentListPage = () => {
       .catch((err) => console.error("Failed to fetch students", err));
   }, []);
 
-  // Listen for delete event and update UI accordingly
   useEffect(() => {
     const handleStudentDeleted = (e: CustomEvent) => {
       setStudents((prev) => prev.filter((s) => s.id !== e.detail));
@@ -51,8 +51,11 @@ const StudentListPage = () => {
   }, []);
 
   const renderRow = (item: Student) => {
-    // Picking the studentId from the same row explicitly
     const idFromRow = item.studentId;
+
+    const handleViewClick = () => {
+      router.push(`/list/students/${idFromRow}`);
+    };
 
     return (
       <tr
@@ -78,17 +81,19 @@ const StudentListPage = () => {
         <td className="hidden lg:table-cell">{item.address}</td>
         <td>
           <div className="flex items-center gap-2">
-            <Link href={`/list/students/${item.id}`}>
-              <button
-                type="button"
-                className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky"
-                aria-label={`View ${item.name}`}
-              >
-                <Image src="/view.png" alt="View" width={16} height={16} />
-              </button>
-            </Link>
+            <button
+              type="button"
+              onClick={handleViewClick}
+              className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky"
+              aria-label={`View ${item.name}`}
+            >
+              <Image src="/view.png" alt="View" width={16} height={16} />
+            </button>
             {role === "admin" && (
               <FormModal table="student" type="delete" id={parseInt(idFromRow)} />
+            )}
+            {role === "admin" && (
+              <FormModal table="student" type="update" id={parseInt(idFromRow)} />
             )}
           </div>
         </td>
