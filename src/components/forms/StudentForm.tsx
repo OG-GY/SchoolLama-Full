@@ -31,7 +31,7 @@ const StudentForm = ({ data, type }: Props) => {
     if (type === "update" && data) {
       setFormData({
         username: data.username || "",
-        password: "", // Don't preload password
+        password: "",
         name: data.name || "",
         surname: data.surname || "",
         email: data.email || "",
@@ -104,106 +104,103 @@ const StudentForm = ({ data, type }: Props) => {
     }
   };
 
+  const inputClass =
+    "peer w-full p-3 border rounded-lg bg-white text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all";
+
+  const labelClass =
+    "absolute left-3 top-3 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-0 peer-focus:text-xs peer-focus:text-primary bg-white px-1";
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-xl mx-auto p-4">
-      <input
-        type="text"
-        name="username"
-        placeholder="Username"
-        value={formData.username}
-        onChange={handleChange}
-        className="input input-bordered w-full"
-        required
-      />
-      {type === "create" && (
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          className="input input-bordered w-full"
-          required
-        />
-      )}
-      <input
-        type="text"
-        name="name"
-        placeholder="Name"
-        value={formData.name}
-        onChange={handleChange}
-        className="input input-bordered w-full"
-        required
-      />
-      <input
-        type="text"
-        name="surname"
-        placeholder="Surname"
-        value={formData.surname}
-        onChange={handleChange}
-        className="input input-bordered w-full"
-      />
-      <input
-        type="email"
-        name="email"
-        placeholder="Email"
-        value={formData.email}
-        onChange={handleChange}
-        className="input input-bordered w-full"
-        required
-      />
-      <input
-        type="tel"
-        name="phone"
-        placeholder="Phone"
-        value={formData.phone}
-        onChange={handleChange}
-        className="input input-bordered w-full"
-      />
-      <input
-        type="text"
-        name="address"
-        placeholder="Address"
-        value={formData.address}
-        onChange={handleChange}
-        className="input input-bordered w-full"
-      />
-      <input
-        type="text"
-        name="bloodType"
-        placeholder="Blood Type"
-        value={formData.bloodType}
-        onChange={handleChange}
-        className="input input-bordered w-full"
-      />
-      <input
-        type="date"
-        name="birthday"
-        value={formData.birthday}
-        onChange={handleChange}
-        className="input input-bordered w-full"
-      />
-      <select
-        name="sex"
-        value={formData.sex}
-        onChange={handleChange}
-        className="select select-bordered w-full"
-        required
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow-lg space-y-6"
+    >
+      <h2 className="text-2xl font-semibold text-center">
+        {type === "create" ? "Create" : "Update"} Student
+      </h2>
+
+      <div className="grid sm:grid-cols-2 gap-4">
+        {/* Floating Label Input */}
+        {[
+          { name: "username", type: "text", label: "Username", required: true },
+          { name: "name", type: "text", label: "First Name", required: true },
+          { name: "surname", type: "text", label: "Surname" },
+          { name: "email", type: "email", label: "Email", required: true },
+          { name: "phone", type: "tel", label: "Phone" },
+          { name: "address", type: "text", label: "Address" },
+          { name: "bloodType", type: "text", label: "Blood Type" },
+          { name: "birthday", type: "date", label: "Birthday" },
+        ].map((field) => (
+          <div key={field.name} className="relative">
+            <input
+              type={field.type}
+              name={field.name}
+              placeholder=" "
+              value={(formData as any)[field.name]}
+              onChange={handleChange}
+              className={inputClass}
+              required={field.required}
+            />
+            <label htmlFor={field.name} className={labelClass}>
+              {field.label}
+            </label>
+          </div>
+        ))}
+
+        {type === "create" && (
+          <div className="relative">
+            <input
+              type="password"
+              name="password"
+              placeholder=" "
+              value={formData.password}
+              onChange={handleChange}
+              className={inputClass}
+              required
+            />
+            <label htmlFor="password" className={labelClass}>
+              Password
+            </label>
+          </div>
+        )}
+
+        <div className="relative">
+          <select
+            name="sex"
+            value={formData.sex}
+            onChange={handleChange}
+            className={inputClass + " appearance-none"}
+            required
+          >
+            <option value="">Select Gender</option>
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+          </select>
+          <label htmlFor="sex" className={labelClass}>
+            Gender
+          </label>
+        </div>
+
+        {type === "create" && (
+          <div className="relative">
+            <input
+              type="file"
+              name="img"
+              onChange={handleChange}
+              accept="image/*"
+              className="file-input w-full"
+            />
+            <label className="text-sm text-gray-600 block mt-1">
+              Upload Image
+            </label>
+          </div>
+        )}
+      </div>
+
+      <button
+        type="submit"
+        className="mt-6 w-full bg-blue-700 text-white py-3 rounded-lg font-semibold hover:bg-primary-dark transition-all"
       >
-        <option value="">Select Gender</option>
-        <option value="MALE">Male</option>
-        <option value="FEMALE">Female</option>
-      </select>
-      {type === "create" && (
-        <input
-          type="file"
-          name="img"
-          onChange={handleChange}
-          accept="image/*"
-          className="file-input file-input-bordered w-full"
-        />
-      )}
-      <button type="submit" className="btn btn-primary w-full">
         {type === "create" ? "Create Student" : "Update Student"}
       </button>
     </form>
